@@ -1,0 +1,99 @@
+create vfstesteval testeval.vfs
+VfsCreateCommand executed
+==========================
+open vfstesteval testeval.vfs
+VfsOpenCommand executed
+==========================
+makedir / 
+VfsMakeDirCommand executed
+==========================
+list / 
+VfsListCommand executed
+==========================
+makedir /testeval1 
+VfsMakeDirCommand executed
+==========================
+list / 
+/testeval1/
+VfsListCommand executed
+==========================
+list /testeval1 
+VfsListCommand executed
+==========================
+makedir /testeval2 
+VfsMakeDirCommand executed
+==========================
+list / 
+/testeval1/
+/testeval2/
+VfsListCommand executed
+==========================
+list /testeval2 
+VfsListCommand executed
+==========================
+makedir /testeval1/testeval1.1 
+VfsMakeDirCommand executed
+==========================
+makedir /testeval1/testeval1.2 
+VfsMakeDirCommand executed
+==========================
+list / 
+/testeval1/
+/testeval2/
+VfsListCommand executed
+==========================
+list /testeval1 
+/testeval1/testeval1.1/
+/testeval1/testeval1.2/
+VfsListCommand executed
+==========================
+makedir /testeval2/testeval2.1 
+VfsMakeDirCommand executed
+==========================
+makedir /testeval2/testeval2.2 
+VfsMakeDirCommand executed
+==========================
+makedir /testeval2/testeval2.3 
+VfsMakeDirCommand executed
+==========================
+list / 
+/testeval1/
+/testeval2/
+VfsListCommand executed
+==========================
+list /testeval1 
+/testeval1/testeval1.1/
+/testeval1/testeval1.2/
+VfsListCommand executed
+==========================
+list /testeval2 
+/testeval2/testeval2.1/
+/testeval2/testeval2.2/
+/testeval2/testeval2.3/
+VfsListCommand executed
+==========================
+close  
+VfsCloseCommand executed
+==========================
+open vfstesteval testeval.vfs
+VfsOpenCommand executed
+==========================
+list / 
+/testeval1/
+/testeval2/
+VfsListCommand executed
+==========================
+list /testeval1 
+/testeval1/testeval1.1/
+/testeval1/testeval1.2/
+VfsListCommand executed
+==========================
+list /testeval2 
+/testeval2/testeval2.1/
+/testeval2/testeval2.2/
+/testeval2/testeval2.3/
+VfsListCommand executed
+==========================
+close  
+VfsCloseCommand executed
+==========================

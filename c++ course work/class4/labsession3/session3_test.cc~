@@ -1,0 +1,26 @@
+#include<iostream>
+
+using namespace std;
+
+#include "Camera.h"
+//#include "Phone.h"
+#include "CameraPhone.h"
+#include "CompositePhone.h"
+
+main()
+{
+	Camera c1("Nikon-standalone-camera");
+	c1.click();
+
+	Phone p1("+91-80-41407777");
+	p1.Call();
+
+	CameraPhone cp1("+91-80-41408888", "Nikon-Integrated-Camera");
+	cp1.Call();
+	cp1.click();
+
+	CompositePhone cp2("+91-80-41409999", "Nikon-Embedded-Camera");
+	cp2.Call();
+	cp2.click();
+}
+

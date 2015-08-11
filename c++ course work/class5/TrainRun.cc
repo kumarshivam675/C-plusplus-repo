@@ -1,0 +1,57 @@
+//TrainRun.cc
+#include<iostream>
+#include<vector>
+#include<algorithm>
+
+#include "TrainRun.h"
+#include "Ticket.h"
+#include "Reservation.h"	
+using namespace std;
+
+TrainRun::TrainRun(string trainnumber, string source, string destination, string date) :
+	train_number(trainnumber), source(source), destination(destination), date(date){
+}
+
+struct less_than_key
+{
+    inline bool operator() (Reservation* r1, Reservation* r2)
+    {
+        return (r1->coach() < r2->coach());
+    }
+};
+
+void TrainRun::printReservationChart(){
+	string temp = " ", temp1;
+	cout << "\nPrinting Reservation Chart" << endl;
+	cout << "\nTrain Number is " << train_number << "\t\t";
+	cout << "Train Source is " << source << "\t\t";
+	cout << "Train Destination is " << destination << endl;
+	cout << "Train Running Date is " << date << "\n";
+	sort(reservations.begin(), reservations.end(), less_than_key());
+	for(int i = 0; i < reservations.size(); i++){
+		temp1 = reservations[i]->coach();
+		if(temp != temp1){
+			cout << "\nCoach Number " << temp1 << endl;
+			cout << "\t" << "Name\t\t\t" << "Age\t\t\t" << "Gender\t\t\t" << "Seat\t\t\t" << "PNR Number\n";
+		}
+		temp =temp1;
+		reservations[i]->printReservationChart();
+	}
+
+}
+
+string TrainRun::printTrainDetails(){
+	cout << "\nTrain Number is " << train_number << "\t\t\t";
+	cout << "Train Source is " << source << "\t\t\t";
+	cout << "Train Destination is " << destination << endl;
+	return date;
+}
+
+void TrainRun::addTicket(Ticket* ticket){
+	tickets.push_back(ticket);
+}
+
+void TrainRun::addReservation(Reservation* r){
+	reservations.push_back(r);
+}
+

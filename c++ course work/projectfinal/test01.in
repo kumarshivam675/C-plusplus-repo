@@ -1,0 +1,26 @@
+create vfstesteval testeval.vfs
+open vfstesteval testeval.vfs
+makedir /
+list /
+makedir /testeval1
+list /
+list /testeval1
+makedir /testeval2
+list /
+list /testeval2
+makedir /testeval1/testeval1.1
+makedir /testeval1/testeval1.2
+list /
+list /testeval1
+makedir /testeval2/testeval2.1
+makedir /testeval2/testeval2.2
+makedir /testeval2/testeval2.3
+list /
+list /testeval1
+list /testeval2
+close
+open vfstesteval testeval.vfs
+list /
+list /testeval1
+list /testeval2
+close

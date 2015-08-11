@@ -1,0 +1,48 @@
+#include <cmath>
+#include <cstdio>
+#include <vector>
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+
+int main() {
+    int size;
+    cin >> size;
+    string str,str1;
+    for(int i = 0; i < size; i++){
+        cin >> str;
+        str1 = str;
+        int size = str.length();
+        int j = 0;
+        while(j < size/2){
+            str.erase(0,1);
+            j++;
+        }
+        j = size/2;
+        while(j < size){
+            str1.erase(size/2,1);
+            j++;
+        }
+        if(str.length() != str1.length()){
+            cout << "-1" << endl;
+        }
+        
+        else{
+            for(int j = 0; j < str.length(); j++){
+                for(int k = 0; k < str1.length(); k++){
+                    if(str[j] == str1[k]){
+                    	//cout << "yes\n";
+                        str.erase(j,1); 
+                        str1.erase(k,1);
+                        k--;   
+                        j--;
+                    }                    
+                }
+            }
+            cout << str.length() << endl;
+        }
+    }
+    return 0;
+}
+

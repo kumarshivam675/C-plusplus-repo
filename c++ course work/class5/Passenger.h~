@@ -1,0 +1,22 @@
+//Passenger.h
+
+#include<string>
+
+using namespace std;
+
+class Reservation;
+class Ticket;
+class TrainRun;
+
+class Passenger{
+		string name;
+		int age;
+		char gender;
+		Reservation *my_reservation;
+		Ticket *my_ticket;
+public:
+		//~Passenger();
+		Passenger(string name, int age, char gender, string coach, int seat, Ticket* t1, TrainRun* tr);
+		void printPassenger();
+		void printPassengerChart(int temp_seat);
+};

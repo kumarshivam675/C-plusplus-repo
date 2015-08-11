@@ -1,0 +1,758 @@
+/* Copyright (C) 1991-2014 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
+
+/*
+ *	ISO C99 Standard: 7.21 String handling	<string.h>
+ */
+
+#ifndef	_STRING_H
+#define	_STRING_H	1
+
+#include <features.h>
+
+__BEGIN_DECLS
+
+/* Get size_t and NULL from <stddef.h>.  */
+#define	__need_size_t
+#define	__need_NULL
+#include <stddef.h>
+
+/* Provide correct C++ prototypes, and indicate this to the caller.  This
+   requires a compatible C++ standard library.  As a heuristic, we provide
+   these when the compiler indicates full conformance with C++98 or later,
+   and for older GCC versions that are known to provide a compatible
+   libstdc++.  */
+#if defined __cplusplus && (__cplusplus >= 199711L || __GNUC_PREREQ (4, 4))
+# define __CORRECT_ISO_CPP_STRING_H_PROTO
+#endif
+
+
+__BEGIN_NAMESPACE_STD
+/* Copy N bytes of SRC to DEST.  */
+extern void *memcpy (void *__restrict __dest, const void *__restrict __src,
+		     size_t __n) __THROW __nonnull ((1, 2));
+/* Copy N bytes of SRC to DEST, guaranteeing
+   correct behavior for overlapping strings.  */
+extern void *memmove (void *__dest, const void *__src, size_t __n)
+     __THROW __nonnull ((1, 2));
+__END_NAMESPACE_STD
+
+/* Copy no more than N bytes of SRC to DEST, stopping when C is found.
+   Return the position in DEST one byte past where C was copied,
+   or NULL if C was not found in the first N bytes of SRC.  */
+#if defined __USE_SVID || defined __USE_BSD || defined __USE_XOPEN
+extern void *memccpy (void *__restrict __dest, const void *__restrict __src,
+		      int __c, size_t __n)
+     __THROW __nonnull ((1, 2));
+#endif /* SVID.  */
+
+
+__BEGIN_NAMESPACE_STD
+/* Set N bytes of S to C.  */
+extern void *memset (void *__s, int __c, size_t __n) __THROW __nonnull ((1));
+
+/* Compare N bytes of S1 and S2.  */
+extern int memcmp (const void *__s1, const void *__s2, size_t __n)
+     __THROW __attribute_pure__ __nonnull ((1, 2));
+
+/* Search N bytes of S for C.  */
+#ifdef __CORRECT_ISO_CPP_STRING_H_PROTO
+extern "C++"
+{
+extern void *memchr (void *__s, int __c, size_t __n)
+      __THROW __asm ("memchr") __attribute_pure__ __nonnull ((1));
+extern const void *memchr (const void *__s, int __c, size_t __n)
+      __THROW __asm ("memchr") __attribute_pure__ __nonnull ((1));
+
+# ifdef __OPTIMIZE__
+__extern_always_inline void *
+memchr (void *__s, int __c, size_t __n) __THROW
+{
+  return __builtin_memchr (__s, __c, __n);
+}
+
+__extern_always_inline const void *
+memchr (const void *__s, int __c, size_t __n) __THROW
+{
+  return __builtin_memchr (__s, __c, __n);
+}
+# endif
+}
+#else
+extern void *memchr (const void *__s, int __c, size_t __n)
+      __THROW __attribute_pure__ __nonnull ((1));
+#endif
+__END_NAMESPACE_STD
+
+#ifdef __USE_GNU
+/* Search in S for C.  This is similar to `memchr' but there is no
+   length limit.  */
+# ifdef __CORRECT_ISO_CPP_STRING_H_PROTO
+extern "C++" void *rawmemchr (void *__s, int __c)
+     __THROW __asm ("rawmemchr") __attribute_pure__ __nonnull ((1));
+extern "C++" const void *rawmemchr (const void *__s, int __c)
+     __THROW __asm ("rawmemchr") __attribute_pure__ __nonnull ((1));
+# else
+extern void *rawmemchr (const void *__s, int __c)
+     __THROW __attribute_pure__ __nonnull ((1));
+# endif
+
+/* Search N bytes of S for the final occurrence of C.  */
+# ifdef __CORRECT_ISO_CPP_STRING_H_PROTO
+extern "C++" void *memrchr (void *__s, int __c, size_t __n)
+      __THROW __asm ("memrchr") __attribute_pure__ __nonnull ((1));
+extern "C++" const void *memrchr (const void *__s, int __c, size_t __n)
+      __THROW __asm ("memrchr") __attribute_pure__ __nonnull ((1));
+# else
+extern void *memrchr (const void *__s, int __c, size_t __n)
+      __THROW __attribute_pure__ __nonnull ((1));
+# endif
+#endif
+
+
+__BEGIN_NAMESPACE_STD
+/* Copy SRC to DEST.  */
+extern char *strcpy (char *__restrict __dest, const char *__restrict __src)
+     __THROW __nonnull ((1, 2));
+/* Copy no more than N characters of SRC to DEST.  */
+extern char *strncpy (char *__restrict __dest,
+		      const char *__restrict __src, size_t __n)
+     __THROW __nonnull ((1, 2));
+
+/* Append SRC onto DEST.  */
+extern char *strcat (char *__restrict __dest, const char *__restrict __src)
+     __THROW __nonnull ((1, 2));
+/* Append no more than N characters from SRC onto DEST.  */
+extern char *strncat (char *__restrict __dest, const char *__restrict __src,
+		      size_t __n) __THROW __nonnull ((1, 2));
+
+/* Compare S1 and S2.  */
+extern int strcmp (const char *__s1, const char *__s2)
+     __THROW __attribute_pure__ __nonnull ((1, 2));
+/* Compare N characters of S1 and S2.  */
+extern int strncmp (const char *__s1, const char *__s2, size_t __n)
+     __THROW __attribute_pure__ __nonnull ((1, 2));
+
+/* Compare the collated forms of S1 and S2.  */
+extern int strcoll (const char *__s1, const char *__s2)
+     __THROW __attribute_pure__ __nonnull ((1, 2));
+/* Put a transformation of SRC into no more than N bytes of DEST.  */
+extern size_t strxfrm (char *__restrict __dest,
+		       const char *__restrict __src, size_t __n)
+     __THROW __nonnull ((2));
+__END_NAMESPACE_STD
+
+#ifdef __USE_XOPEN2K8
+/* The following functions are equivalent to the both above but they
+   take the locale they use for the collation as an extra argument.
+   This is not standardsized but something like will come.  */
+# include <xlocale.h>
+
+/* Compare the collated forms of S1 and S2 using rules from L.  */
+extern int strcoll_l (const char *__s1, const char *__s2, __locale_t __l)
+     __THROW __attribute_pure__ __nonnull ((1, 2, 3));
+/* Put a transformation of SRC into no more than N bytes of DEST.  */
+extern size_t strxfrm_l (char *__dest, const char *__src, size_t __n,
+			 __locale_t __l) __THROW __nonnull ((2, 4));
+#endif
+
+#if defined __USE_SVID || defined __USE_BSD || defined __USE_XOPEN_EXTENDED \
+    || defined __USE_XOPEN2K8
+/* Duplicate S, returning an identical malloc'd string.  */
+extern char *strdup (const char *__s)
+     __THROW __attribute_malloc__ __nonnull ((1));
+#endif
+
+/* Return a malloc'd copy of at most N bytes of STRING.  The
+   resultant string is terminated even if no null terminator
+   appears before STRING[N].  */
+#if defined __USE_XOPEN2K8
+extern char *strndup (const char *__string, size_t __n)
+     __THROW __attribute_malloc__ __nonnull ((1));
+#endif
+
+#if defined __USE_GNU && defined __GNUC__
+/* Duplicate S, returning an identical alloca'd string.  */
+# define strdupa(s)							      \
+  (__extension__							      \
+    ({									      \
+      const char *__old = (s);						      \
+      size_t __len = strlen (__old) + 1;				      \
+      char *__new = (char *) __builtin_alloca (__len);			      \
+      (char *) memcpy (__new, __old, __len);				      \
+    }))
+
+/* Return an alloca'd copy of at most N bytes of string.  */
+# define strndupa(s, n)							      \
+  (__extension__							      \
+    ({									      \
+      const char *__old = (s);						      \
+      size_t __len = strnlen (__old, (n));				      \
+      char *__new = (char *) __builtin_alloca (__len + 1);		      \
+      __new[__len] = '\0';						      \
+      (char *) memcpy (__new, __old, __len);				      \
+    }))
+#endif
+
+__BEGIN_NAMESPACE_STD
+/* Find the first occurrence of C in S.  */
+#ifdef __CORRECT_ISO_CPP_STRING_H_PROTO
+extern "C++"
+{
+extern char *strchr (char *__s, int __c)
+     __THROW __asm ("strchr") __attribute_pure__ __nonnull ((1));
+extern const char *strchr (const char *__s, int __c)
+     __THROW __asm ("strchr") __attribute_pure__ __nonnull ((1));
+
+# ifdef __OPTIMIZE__
+__extern_always_inline char *
+strchr (char *__s, int __c) __THROW
+{
+  return __builtin_strchr (__s, __c);
+}
+
+__extern_always_inline const char *
+strchr (const char *__s, int __c) __THROW
+{
+  return __builtin_strchr (__s, __c);
+}
+# endif
+}
+#else
+extern char *strchr (const char *__s, int __c)
+     __THROW __attribute_pure__ __nonnull ((1));
+#endif
+/* Find the last occurrence of C in S.  */
+#ifdef __CORRECT_ISO_CPP_STRING_H_PROTO
+extern "C++"
+{
+extern char *strrchr (char *__s, int __c)
+     __THROW __asm ("strrchr") __attribute_pure__ __nonnull ((1));
+extern const char *strrchr (const char *__s, int __c)
+     __THROW __asm ("strrchr") __attribute_pure__ __nonnull ((1));
+
+# ifdef __OPTIMIZE__
+__extern_always_inline char *
+strrchr (char *__s, int __c) __THROW
+{
+  return __builtin_strrchr (__s, __c);
+}
+
+__extern_always_inline const char *
+strrchr (const char *__s, int __c) __THROW
+{
+  return __builtin_strrchr (__s, __c);
+}
+# endif
+}
+#else
+extern char *strrchr (const char *__s, int __c)
+     __THROW __attribute_pure__ __nonnull ((1));
+#endif
+__END_NAMESPACE_STD
+
+#ifdef __USE_GNU
+/* This function is similar to `strchr'.  But it returns a pointer to
+   the closing NUL byte in case C is not found in S.  */
+# ifdef __CORRECT_ISO_CPP_STRING_H_PROTO
+extern "C++" char *strchrnul (char *__s, int __c)
+     __THROW __asm ("strchrnul") __attribute_pure__ __nonnull ((1));
+extern "C++" const char *strchrnul (const char *__s, int __c)
+     __THROW __asm ("strchrnul") __attribute_pure__ __nonnull ((1));
+# else
+extern char *strchrnul (const char *__s, int __c)
+     __THROW __attribute_pure__ __nonnull ((1));
+# endif
+#endif
+
+__BEGIN_NAMESPACE_STD
+/* Return the length of the initial segment of S which
+   consists entirely of characters not in REJECT.  */
+extern size_t strcspn (const char *__s, const char *__reject)
+     __THROW __attribute_pure__ __nonnull ((1, 2));
+/* Return the length of the initial segment of S which
+   consists entirely of characters in ACCEPT.  */
+extern size_t strspn (const char *__s, const char *__accept)
+     __THROW __attribute_pure__ __nonnull ((1, 2));
+/* Find the first occurrence in S of any character in ACCEPT.  */
+#ifdef __CORRECT_ISO_CPP_STRING_H_PROTO
+extern "C++"
+{
+extern char *strpbrk (char *__s, const char *__accept)
+     __THROW __asm ("strpbrk") __attribute_pure__ __nonnull ((1, 2));
+extern const char *strpbrk (const char *__s, const char *__accept)
+     __THROW __asm ("strpbrk") __attribute_pure__ __nonnull ((1, 2));
+
+# ifdef __OPTIMIZE__
+__extern_always_inline char *
+strpbrk (char *__s, const char *__accept) __THROW
+{
+  return __builtin_strpbrk (__s, __accept);
+}
+
+__extern_always_inline const char *
+strpbrk (const char *__s, const char *__accept) __THROW
+{
+  return __builtin_strpbrk (__s, __accept);
+}
+# endif
+}
+#else
+extern char *strpbrk (const char *__s, const char *__accept)
+     __THROW __attribute_pure__ __nonnull ((1, 2));
+#endif
+/* Find the first occurrence of NEEDLE in HAYSTACK.  */
+#ifdef __CORRECT_ISO_CPP_STRING_H_PROTO
+extern "C++"
+{
+extern char *strstr (char *__haystack, const char *__needle)
+     __THROW __asm ("strstr") __attribute_pure__ __nonnull ((1, 2));
+extern const char *strstr (const char *__haystack, const char *__needle)
+     __THROW __asm ("strstr") __attribute_pure__ __nonnull ((1, 2));
+
+# ifdef __OPTIMIZE__
+__extern_always_inline char *
+strstr (char *__haystack, const char *__needle) __THROW
+{
+  return __builtin_strstr (__haystack, __needle);
+}
+
+__extern_always_inline const char *
+strstr (const char *__haystack, const char *__needle) __THROW
+{
+  return __builtin_strstr (__haystack, __needle);
+}
+# endif
+}
+#else
+extern char *strstr (const char *__haystack, const char *__needle)
+     __THROW __attribute_pure__ __nonnull ((1, 2));
+#endif
+
+
+/* Divide S into tokens separated by characters in DELIM.  */
+extern char *strtok (char *__restrict __s, const char *__restrict __delim)
+     __THROW __nonnull ((2));
+__END_NAMESPACE_STD
+
+/* Divide S into tokens separated by characters in DELIM.  Information
+   passed between calls are stored in SAVE_PTR.  */
+extern char *__strtok_r (char *__restrict __s,
+			 const char *__restrict __delim,
+			 char **__restrict __save_ptr)
+     __THROW __nonnull ((2, 3));
+#if defined __USE_POSIX || defined __USE_MISC
+extern char *strtok_r (char *__restrict __s, const char *__restrict __delim,
+		       char **__restrict __save_ptr)
+     __THROW __nonnull ((2, 3));
+#endif
+
+#ifdef __USE_GNU
+/* Similar to `strstr' but this function ignores the case of both strings.  */
+# ifdef __CORRECT_ISO_CPP_STRING_H_PROTO
+extern "C++" char *strcasestr (char *__haystack, const char *__needle)
+     __THROW __asm ("strcasestr") __attribute_pure__ __nonnull ((1, 2));
+extern "C++" const char *strcasestr (const char *__haystack,
+				     const char *__needle)
+     __THROW __asm ("strcasestr") __attribute_pure__ __nonnull ((1, 2));
+# else
+extern char *strcasestr (const char *__haystack, const char *__needle)
+     __THROW __attribute_pure__ __nonnull ((1, 2));
+# endif
+#endif
+
+#ifdef __USE_GNU
+/* Find the first occurrence of NEEDLE in HAYSTACK.
+   NEEDLE is NEEDLELEN bytes long;
+   HAYSTACK is HAYSTACKLEN bytes long.  */
+extern void *memmem (const void *__haystack, size_t __haystacklen,
+		     const void *__needle, size_t __needlelen)
+     __THROW __attribute_pure__ __nonnull ((1, 3));
+
+/* Copy N bytes of SRC to DEST, return pointer to bytes after the
+   last written byte.  */
+extern void *__mempcpy (void *__restrict __dest,
+			const void *__restrict __src, size_t __n)
+     __THROW __nonnull ((1, 2));
+extern void *mempcpy (void *__restrict __dest,
+		      const void *__restrict __src, size_t __n)
+     __THROW __nonnull ((1, 2));
+#endif
+
+
+__BEGIN_NAMESPACE_STD
+/* Return the length of S.  */
+extern size_t strlen (const char *__s)
+     __THROW __attribute_pure__ __nonnull ((1));
+__END_NAMESPACE_STD
+
+#ifdef	__USE_XOPEN2K8
+/* Find the length of STRING, but scan at most MAXLEN characters.
+   If no '\0' terminator is found in that many characters, return MAXLEN.  */
+extern size_t strnlen (const char *__string, size_t __maxlen)
+     __THROW __attribute_pure__ __nonnull ((1));
+#endif
+
+
+__BEGIN_NAMESPACE_STD
+/* Return a string describing the meaning of the `errno' code in ERRNUM.  */
+extern char *strerror (int __errnum) __THROW;
+__END_NAMESPACE_STD
+#if defined __USE_XOPEN2K || defined __USE_MISC
+/* Reentrant version of `strerror'.
+   There are 2 flavors of `strerror_r', GNU which returns the string
+   and may or may not use the supplied temporary buffer and POSIX one
+   which fills the string into the buffer.
+   To use the POSIX version, -D_XOPEN_SOURCE=600 or -D_POSIX_C_SOURCE=200112L
+   without -D_GNU_SOURCE is needed, otherwise the GNU version is
+   preferred.  */
+# if defined __USE_XOPEN2K && !defined __USE_GNU
+/* Fill BUF with a string describing the meaning of the `errno' code in
+   ERRNUM.  */
+#  ifdef __REDIRECT_NTH
+extern int __REDIRECT_NTH (strerror_r,
+			   (int __errnum, char *__buf, size_t __buflen),
+			   __xpg_strerror_r) __nonnull ((2));
+#  else
+extern int __xpg_strerror_r (int __errnum, char *__buf, size_t __buflen)
+     __THROW __nonnull ((2));
+#   define strerror_r __xpg_strerror_r
+#  endif
+# else
+/* If a temporary buffer is required, at most BUFLEN bytes of BUF will be
+   used.  */
+extern char *strerror_r (int __errnum, char *__buf, size_t __buflen)
+     __THROW __nonnull ((2)) __wur;
+# endif
+#endif
+
+#ifdef __USE_XOPEN2K8
+/* Translate error number to string according to the locale L.  */
+extern char *strerror_l (int __errnum, __locale_t __l) __THROW;
+#endif
+
+
+/* We define this function always since `bzero' is sometimes needed when
+   the namespace rules does not allow this.  */
+extern void __bzero (void *__s, size_t __n) __THROW __nonnull ((1));
+
+#ifdef __USE_BSD
+/* Copy N bytes of SRC to DEST (like memmove, but args reversed).  */
+extern void bcopy (const void *__src, void *__dest, size_t __n)
+     __THROW __nonnull ((1, 2));
+
+/* Set N bytes of S to 0.  */
+extern void bzero (void *__s, size_t __n) __THROW __nonnull ((1));
+
+/* Compare N bytes of S1 and S2 (same as memcmp).  */
+extern int bcmp (const void *__s1, const void *__s2, size_t __n)
+     __THROW __attribute_pure__ __nonnull ((1, 2));
+
+/* Find the first occurrence of C in S (same as strchr).  */
+# ifdef __CORRECT_ISO_CPP_STRING_H_PROTO
+extern "C++"
+{
+extern char *index (char *__s, int __c)
+     __THROW __asm ("index") __attribute_pure__ __nonnull ((1));
+extern const char *index (const char *__s, int __c)
+     __THROW __asm ("index") __attribute_pure__ __nonnull ((1));
+
+#  if defined __OPTIMIZE__ && !defined __CORRECT_ISO_CPP_STRINGS_H_PROTO
+__extern_always_inline char *
+index (char *__s, int __c) __THROW
+{
+  return __builtin_index (__s, __c);
+}
+
+__extern_always_inline const char *
+index (const char *__s, int __c) __THROW
+{
+  return __builtin_index (__s, __c);
+}
+#  endif
+}
+# else
+extern char *index (const char *__s, int __c)
+     __THROW __attribute_pure__ __nonnull ((1));
+# endif
+
+/* Find the last occurrence of C in S (same as strrchr).  */
+# ifdef __CORRECT_ISO_CPP_STRING_H_PROTO
+extern "C++"
+{
+extern char *rindex (char *__s, int __c)
+     __THROW __asm ("rindex") __attribute_pure__ __nonnull ((1));
+extern const char *rindex (const char *__s, int __c)
+     __THROW __asm ("rindex") __attribute_pure__ __nonnull ((1));
+
+#  if defined __OPTIMIZE__ && !defined __CORRECT_ISO_CPP_STRINGS_H_PROTO
+__extern_always_inline char *
+rindex (char *__s, int __c) __THROW
+{
+  return __builtin_rindex (__s, __c);
+}
+
+__extern_always_inline const char *
+rindex (const char *__s, int __c) __THROW
+{
+  return __builtin_rindex (__s, __c);
+}
+#endif
+}
+# else
+extern char *rindex (const char *__s, int __c)
+     __THROW __attribute_pure__ __nonnull ((1));
+# endif
+
+/* Return the position of the first bit set in I, or 0 if none are set.
+   The least-significant bit is position 1, the most-significant 32.  */
+extern int ffs (int __i) __THROW __attribute__ ((__const__));
+
+/* The following two functions are non-standard but necessary for non-32 bit
+   platforms.  */
+# ifdef	__USE_GNU
+extern int ffsl (long int __l) __THROW __attribute__ ((__const__));
+__extension__ extern int ffsll (long long int __ll)
+     __THROW __attribute__ ((__const__));
+# endif
+
+/* Compare S1 and S2, ignoring case.  */
+extern int strcasecmp (const char *__s1, const char *__s2)
+     __THROW __attribute_pure__ __nonnull ((1, 2));
+
+/* Compare no more than N chars of S1 and S2, ignoring case.  */
+extern int strncasecmp (const char *__s1, const char *__s2, size_t __n)
+     __THROW __attribute_pure__ __nonnull ((1, 2));
+#endif /* Use BSD.  */
+
+#ifdef	__USE_GNU
+/* Again versions of a few functions which use the given locale instead
+   of the global one.  */
+extern int strcasecmp_l (const char *__s1, const char *__s2,
+			 __locale_t __loc)
+     __THROW __attribute_pure__ __nonnull ((1, 2, 3));
+
+extern int strncasecmp_l (const char *__s1, const char *__s2,
+			  size_t __n, __locale_t __loc)
+     __THROW __attribute_pure__ __nonnull ((1, 2, 4));
+#endif
+
+#ifdef	__USE_BSD
+/* Return the next DELIM-delimited token from *STRINGP,
+   terminating it with a '\0', and update *STRINGP to point past it.  */
+extern char *strsep (char **__restrict __stringp,
+		     const char *__restrict __delim)
+     __THROW __nonnull ((1, 2));
+#endif
+
+#ifdef	__USE_XOPEN2K8
+/* Return a string describing the meaning of the signal number in SIG.  */
+extern char *strsignal (int __sig) __THROW;
+
+/* Copy SRC to DEST, returning the address of the terminating '\0' in DEST.  */
+extern char *__stpcpy (char *__restrict __dest, const char *__restrict __src)
+     __THROW __nonnull ((1, 2));
+extern char *stpcpy (char *__restrict __dest, const char *__restrict __src)
+     __THROW __nonnull ((1, 2));
+
+/* Copy no more than N characters of SRC to DEST, returning the address of
+   the last character written into DEST.  */
+extern char *__stpncpy (char *__restrict __dest,
+			const char *__restrict __src, size_t __n)
+     __THROW __nonnull ((1, 2));
+extern char *stpncpy (char *__restrict __dest,
+		      const char *__restrict __src, size_t __n)
+     __THROW __nonnull ((1, 2));
+#endif
+
+#ifdef	__USE_GNU
+/* Compare S1 and S2 as strings holding name & indices/version numbers.  */
+extern int strverscmp (const char *__s1, const char *__s2)
+     __THROW __attribute_pure__ __nonnull ((1, 2));
+
+/* Sautee STRING briskly.  */
+extern char *strfry (char *__string) __THROW __nonnull ((1));
+
+/* Frobnicate N bytes of S.  */
+extern void *memfrob (void *__s, size_t __n) __THROW __nonnull ((1));
+
+# ifndef basename
+/* Return the file name within directory of FILENAME.  We don't
+   declare the function if the `basename' macro is available (defined
+   in <libgen.h>) which makes the XPG version of this function
+   available.  */
+#  ifdef __CORRECT_ISO_CPP_STRING_H_PROTO
+extern "C++" char *basename (char *__filename)
+     __THROW __asm ("basename") __nonnull ((1));
+extern "C++" const char *basename (const char *__filename)
+     __THROW __asm ("basename") __nonnull ((1));
+#  else
+extern char *basename (const char *__filename) __THROW __nonnull ((1));
+#  endif
+# endif
+#endif
+
+
+#if defined __GNUC__ && __GNUC__ >= 2
+# if defined __OPTIMIZE__ && !defined __OPTIMIZE_SIZE__ \
+     && !defined __NO_INLINE__ && !defined __cplusplus
+/* When using GNU CC we provide some optimized versions of selected
+   functions from this header.  There are two kinds of optimizations:
+
+   - machine-dependent optimizations, most probably using inline
+     assembler code; these might be quite expensive since the code
+     size can increase significantly.
+     These optimizations are not used unless the symbol
+	__USE_STRING_INLINES
+     is defined before including this header.
+
+   - machine-independent optimizations which do not increase the
+     code size significantly and which optimize mainly situations
+     where one or more arguments are compile-time constants.
+     These optimizations are used always when the compiler is
+     taught to optimize.
+
+   One can inhibit all optimizations by defining __NO_STRING_INLINES.  */
+
+/* Get the machine-dependent optimizations (if any).  */
+#  include <bits/string.h>
+
+/* These are generic optimizations which do not add too much inline code.  */
+#  include <bits/string2.h>
+# endif
+
+# if __USE_FORTIFY_LEVEL > 0 && defined __fortify_function
+/* Functions with security checks.  */
+#  include <bits/string3.h>
+# endif
+#endif
+
+__END_DECLS
+
+#endif /* string.h  */
+ELF          >    H@     @       @c          @ 8 	 @         @       @ @     @ @     ø      ø                   8      8@     8@                                          @       @     ´X      ´X                    ^      ^`     ^`     $      Ğ                    (^      (^`     (^`     Ğ      Ğ                   T      T@     T@     D       D              Påtd   ìK      ìK@     ìK@     <      <             Qåtd                                                  Råtd   ^      ^`     ^`     ğ      ğ             /lib64/ld-linux-x86-64.so.2          GNU                       GNU ­øò×ØLâÀôğF~Ûvàƒ   4         ÉA  4   5   ;   )Œ¼Pv– ‰—Î,cräbAõÀ³÷9ò‹3Ä÷                            (                     J                                                                Ø                      8                      ‡                                            „                     ¸                                          ´                     O                      ¥                      Ã                      _                      j                     0                      ê                     G                                           Ñ                      c                                          Ñ                     é                      õ                     ¼                      Ê                     1                                           v                                                                0                     Ê                      Q                     y                      ­                     &                                            Y                      ¯                     ã                     $                     ˆ                      }                     ğ                                            p                      <                     ş     Pb`            	    @b`               !  hb`                hb`              !  @b`            Ã    pb`            \    xb`            @     `b`             libc.so.6 fflush strcpy __printf_chk setlocale mbrtowc strncmp optind strrchr dcgettext error __stack_chk_fail iswprint realloc abort _exit program_invocation_name __ctype_get_mb_cur_max calloc strlen ungetc memset __errno_location memcmp __fprintf_chk stdout lseek memcpy fclose malloc mbsinit __uflow nl_langinfo __ctype_b_loc getenv __freading stderr fscanf getopt_long fileno fwrite __fpending program_invocation_short_name fdopen bindtextdomain opterr strcmp __libc_start_main fseeko __overflow fputs_unlocked free __progname __progname_full __cxa_atexit __gmon_start__ GLIBC_2.3 GLIBC_2.3.4 GLIBC_2.14 GLIBC_2.4 GLIBC_2.2.5                                                                            ii   @     ti	   J     ”‘–   V     ii   a     ui	   k      ø_`                   @b`        5           Pb`        4           `b`        ;           hb`        7           pb`        9           xb`        :           ``                    ``                   (``                   0``                   8``                   @``                   H``                   P``                   X``        	           ```        
+           h``                   p``                   x``                   €``                   ˆ``                   ``                   ˜``                    ``                   ¨``                   °``                   ¸``                   À``                   È``                   Ğ``                   Ø``                   à``                   è``                   ğ``                   ø``                    a`                   a`                   a`                    a`        !            a`        "           (a`        #           0a`        $           8a`        %           @a`        &           Ha`        '           Pa`        (           Xa`        )           `a`        *           ha`        +           pa`        ,           xa`        -           €a`        .           ˆa`        /           a`        0           ˜a`        1            a`        2           ¨a`        3           HƒìH‹­N  H…Àtèë  HƒÄÃ      ÿ5¢N  ÿ%¤N  @ ÿ%¢N  h    éàÿÿÿÿ%šN  h   éĞÿÿÿÿ%’N  h   éÀÿÿÿÿ%ŠN  h   é°ÿÿÿÿ%‚N  h   é ÿÿÿÿ%zN  h   éÿÿÿÿ%rN  h   é€ÿÿÿÿ%jN  h   épÿÿÿÿ%bN  h   é`ÿÿÿÿ%ZN  h	   éPÿÿÿÿ%RN  h
+   é@ÿÿÿÿ%JN  h   é0ÿÿÿÿ%BN  h   é ÿÿÿÿ%:N  h   éÿÿÿÿ%2N  h   é ÿÿÿÿ%*N  h   éğşÿÿÿ%"N  h   éàşÿÿÿ%N  h   éĞşÿÿÿ%N  h   éÀşÿÿÿ%
+N  h   é°şÿÿÿ%N  h   é şÿÿÿ%úM  h   éşÿÿÿ%òM  h   é€şÿÿÿ%êM  h   épşÿÿÿ%âM  h   é`şÿÿÿ%ÚM  h   éPşÿÿÿ%ÒM  h   é@şÿÿÿ%ÊM  h   é0şÿÿÿ%ÂM  h   é şÿÿÿ%ºM  h   éşÿÿÿ%²M  h   é şÿÿÿ%ªM  h   éğıÿÿÿ%¢M  h    éàıÿÿÿ%šM  h!   éĞıÿÿÿ%’M  h"   éÀıÿÿÿ%ŠM  h#   é°ıÿÿÿ%‚M  h$   é ıÿÿÿ%zM  h%   éıÿÿÿ%rM  h&   é€ıÿÿÿ%jM  h'   épıÿÿÿ%bM  h(   é`ıÿÿÿ%ZM  h)   éPıÿÿÿ%RM  h*   é@ıÿÿÿ%JM  h+   é0ıÿÿÿ%BM  h,   é ıÿÿÿ%:M  h-   éıÿÿÿ%2M  h.   é ıÿÿÿ%*M  h/   éğüÿÿÿ%"M  h0   éàüÿÿÿ%M  h1   éĞüÿÿÿ%M  h2   éÀüÿÿAWAVAUATU‰ıSH‰óHƒì(H‹>H‰t$èğ  ¾I@ ¿   èÿÿÿ¾B@ ¿~B@ èBıÿÿ¿~B@ èıÿÿ¿P@ è+  L‹×L  1ÀA¹@@ ¹zB@ º B@ H‰Ş‰ïHÇD$    HÇ$¤B@ èz  E1À1Éº´B@ H‰Ş‰ïè6ıÿÿƒøÿt
+¿   è÷  ‹M  9ÅÌ   H‹L$HcĞH‹<ÑDmÿ‰ÃA¼    9İ~üH‹L$HcÃL|Áë;D  H‹=ÁL  A9İ¾
+   AEôH‹W(H;W0srHJH‰O(@ˆ2ƒÃ9ëtII‹?IƒÇH‹5‹L  èFıÿÿƒøÿu¹1ÿº   ¾¶B@ èPüÿÿI‰ÆƒÃèÅûÿÿ‹0L‰ò1À¿   èşÿÿ9ëu·‹ZL  H‹L$HcÃH‹<ÁéYÿÿÿètüÿÿƒøÿt®ëH‹L$HcÅ‰-/L  ¿ŒB@ HÇÁŒB@ ‰èƒÅéÿÿÿ1íI‰Ñ^H‰âHƒäğPTIÇÀğ?@ HÇÁ€?@ HÇÇ @ èüÿÿôf.„     @ ¸?b` UH-8b` HƒøH‰åw]Ã¸    H…Àtô]¿8b` ÿà€    ¸8b` UH-8b` HÁøH‰åH‰ÂHÁê?HĞHÑøu]Ãº    H…Òtô]H‰Æ¿8b` ÿâ€    €=‰K   uUH‰åè~ÿÿÿ]ÆvK  óÃ@ Hƒ=G   t¸    H…ÀtU¿ ^` H‰åÿĞ]é{ÿÿÿ ésÿÿÿ Uº   S‰ûHƒì…ÿH‹-BK  t,¾H@@ 1ÿèÌúÿÿH‹=K  H‰ÂH‰é¾   1Àèãüÿÿ‰ßè¼üÿÿ1ÿ¾p@@ è úÿÿH‰éH‰êH‰Æ¿   1ÀèKüÿÿH‹-¤J  º   1ÿ¾˜@@ èsúÿÿH‰îH‰ÇèHûÿÿH‹-J  º   1ÿ¾à@@ èPúÿÿH‰îH‰Çè%ûÿÿH‹-^J  º   1ÿ¾A@ è-úÿÿH‰îH‰ÇèûÿÿH‹=ƒJ  èæ  1ÿH‰Åº   ¾9B@ èúÿÿ¹PB@ H‰êH‰Æ¿   1Àè«ûÿÿ1ÿº   ¾fB@ èÚùÿÿ¹HA@ H‰ÆºzB@ ¿   1ÀèûÿÿH‹-ÚI  º   1ÿ¾pA@ è©ùÿÿH‰îH‰Çè~úÿÿ1ö¿   èBûÿÿH…Àtº   ¾ˆB@ H‰Çèùÿÿ…Àu7H‹=ØI  è;  1ÿH‰Åº   ¾øA@ èWùÿÿH‰êH‰Æ¿   1ÀèûÿÿéşÿÿH‹=¡I  è  1ÿH‰Åº   ¾°A@ è ùÿÿH‰êH‰Æ¿   1ÀèÎúÿÿë•f.„     fH‰=YI  Ã„     @ˆ=AI  Ã„     USHƒìH‹=óH  è>   …Àt€=I   t!è<øÿÿƒ8 uH‹=øH  è   …ÀuJHƒÄ[]Ã1ÿº   ¾ËB@ èøÿÿH‹=èH  H‰ÃH…ÿt.è  H‰Åèó÷ÿÿ‹0I‰ØH‰éº×B@ 1ÿ1Àè-úÿÿ‹=ÿG  èò÷ÿÿèÍ÷ÿÿ‹0H‰ÙºÛB@ 1ÿ1Àè
+úÿÿëÛ„     ¶H‰ø€ú/uD  HƒÀ¶€ú/tô‰Ñ1öH‰Â„Ét@f„     HƒÂ¶
+„Ét€ù/t @„ötëH‰ĞHƒÂ¶
+1ö„ÉuæóÃf„     ¾   ëÉóÃ€    SH‰ûè×÷ÿÿHƒøv€|ÿ/HPÿt[Ã@ HƒúH‰Ğuæ[ÃD  AUM‰ÅATI‰ÌUH‰ÕSHìè   „Àt:)D$`)L$p)”$€   )œ$   )¤$    )¬$°   )´$À   )¼$Ğ   ƒÿ‹sG  ÇiG      t'‰aG  ÇGG      HÄè   []A\A]Ãf„     E1À¹ C@ º´B@ L‰L$è)÷ÿÿƒøÿt½ƒøhL‹L$tRƒøvu®H„$  H‹=æF  LD$L‰éL‰âH‰îH‰D$ HD$0ÇD$0   ÇD$0   H‰D$(è4  1ÿèøÿÿD  1ÿAÿÑë¬H…ÿSH‰ûtj¾/   èİöÿÿH…ÀtKHPH‰ÑH)ÙHƒù~;Hpú¿˜C@ ¹   ó¦u)¹   H‰Ö¿ C@ ó¦H‰Ó@—Æ’Á@8ÎuHXH‰-F  H‰~F  H‰GF  [ÃH‹NF  º7   ¾   ¿`C@ èøÿÿè]õÿÿf.„      HƒìH1ÀH‰ú¹   H‰çƒşóH«tH‰4$H‹$H‰H‹D$H‰BH‹D$H‰BH‹D$H‰BH‹D$ H‰B H‹D$(H‰B(H‹D$0H‰B0H‰ĞHƒÄHÃèêôÿÿf.„     AUº   ATA‰ôH‰şUH‰ı1ÿSHƒìèQõÿÿH9èH‰ÃtHƒÄH‰Ø[]A\A]Ã è#  ¶ƒâß€úUuX¶Pƒâß€úTu4¶Pƒâß€úFu(€x-u"€x8u€x u€;`¸³C@ »¤C@ HDØë¢ »­C@ Aƒü¸«C@ HEØë‹@ €úGuã¶Pƒâß€úBu×€x1uÑ€x8uË€x0uÅ€x3u¿€x0u¹€x u³I‰İ¸¨C@ »¯C@ A€} `HEØé7ÿÿÿAWI‰ÏAVE‰ÆAUI‰ÕATUSD‰ËHìÈ   H‹„$   H‰|$(H‰t$ D‰D$4D‰Œ$   H‰D$XH‹„$  H‰D$pH‹„$  H‰D$hdH‹%(   H‰„$¸   1ÀèôÿÿH‰D$x‰ØÑèƒàAƒşˆD$3‡S	  D‰ğL‹\$ ÿ$Å D@ @ ÆD$3 ÆD$  E1öHÇD$`    1Û„     ¶D$3M‰ñ1íM‰ŞM‰èƒğˆD$8¶D$ ƒğˆ„$•   L9ı•ÀIƒÿÿ„à  f.„     „À„Ş  M…É•Á„ì  €|$  „á  JD I9Ç‚Ó  M,(H‹t$`L‰Ê‰L$PL‰D$HL‰ïL‰L$@èôÿÿ…ÀL‹L$@L‹D$H‹L$P…«  €|$3 …0  A»   f.„     E¶e A€ü~‡é  A¶Äÿ$ÅHD@ fD  ‹D$4ƒø„ã  ƒø…¢   ö„$   „”   HEI9Ç†‡   A€|(?uA¶4 Nß€ùwrº   HÓâ÷ÂÁQ 8tb€|$3 …Ÿ  L9ós	H‹|$(Æ?HSI9Öv
+H‹|$(ÆD"HSI9Öv
+H‹|$(ÆD"HSI9Öv
+H‹|$(ÆD?HƒÃA‰ôH‰ÅfD  €|$8 t
+€¼$•    u%H‹|$XH…ÿtD‰âD‰á¸   Àêƒá¶ÒÓà…—uE„Ût€|$3 …  L9ós	H‹D$(Æ\HƒÃHƒÅL9ós	H‹D$(Dˆ$HƒÃL9ı•ÀIƒÿÿ…*şÿÿA€<( •À„À…"şÿÿH…ÛM‰óM‰Åuƒ|$4u€|$3 …£   €|$3 u:Hƒ|$` t2H‹T$`¶„Àt&H‹L$(H)Úf.„     I9ÛvˆHƒÃ¶„ÀuìL9ÛH‰Øƒ–   H‹t$(Æ éˆ   fIƒÿ•ÀIƒÿÿ„_  „À…ßşÿÿH…í…Öşÿÿƒ|$4…Ëşÿÿ €|$3 „½şÿÿD  M‰óM‰ÅH‹D$hD‹Œ$   L‰ùD‹D$4H‹|$(L‰êHÇ$    L‰ŞH‰D$H‹D$pAƒáıH‰D$èüÿÿH‹´$¸   dH34%(   …†  HÄÈ   []A\A]A^A_Ã¸r   ƒ|$4„/  €|$  „-şÿÿA‰Äé`şÿÿD  ¸b   ëá¸f   ëÙf„     ¸v   ëÉf„     ¸n   ë®f„     ¸t   ëf„     €|$  „  €|$3 …
+ÿÿÿL9ós	H‹D$(Æ\HUHCI9×v/A¶t(VĞ€ú	w!I9Æ‡˜  HCI9Æv
+H‹D$(ÆD0HCH‰ÃA¼0   é{ıÿÿf¸a   é&ÿÿÿfD  €|$  t€|$3 t„É…šıÿÿD‰àé÷şÿÿfƒ|$4…-ıÿÿ€|$3 …jşÿÿL9ós	H‹D$(Æ'HCI9Æv
+H‹D$(ÆD\HCI9Æv
+H‹D$(ÆD'HƒÃéåüÿÿD  Hƒ|$x…œ  L‰D$PL‰L$HD‰\$@èHñÿÿH‹ A¶ÔD‹\$@L‹L$HL‹D$P·P¸   fÁêƒòƒâ"T$ „üÿÿHè¶|$3H‹L$(ëvfD  @„ÿ…·ıÿÿL9ósÆ\HsI9övD‰æ@ÀîƒÆ0@ˆtHsI9övD‰æ@ÀîƒæƒÆ0@ˆtAƒäHƒÃAƒÄ0HƒÅH9è†vüÿÿL9ósDˆ$E¶$(HƒÃ„ÒuŒE„ÛtØL9ósÆ\HƒÃE1ÛëÆD  €|$3 …í  M…Û„­  H‹D$(ÆD$  A¾   HÇD$`«C@ »   Æ 'éúÿÿfD  €|$3 …Í  M…Û„O  H‹D$(ÆD$ A¾   HÇD$`­C@ »   Æ "éÖùÿÿfD  ÆD$3 ÆD$ E1öHÇD$`    1Ûé³ùÿÿ ÆD$3ÆD$ A¾   HÇD$`­C@ 1ÛÇD$4   éˆùÿÿ„     t0‹\$4¿·C@ L‰\$ ‰Şè¹÷ÿÿ‰Ş¿«C@ H‰D$pè¨÷ÿÿL‹\$ H‰D$h1Û€|$3 u)H‹T$p¶„ÀtH‹L$(@ L9ÛsˆHƒÃ¶„ÀuìH‹l$hL‰\$8H‰ïèêìÿÿH‰l$`I‰ÆÆD$ L‹\$8éóøÿÿ ÆD$3ÆD$  A¾   HÇD$`«C@ 1ÛÇD$4   éÈøÿÿ„     M,(E1Ûétùÿÿ@ E1Ûéhùÿÿ„     IƒÿÿHÇ„$°       „¯  ¾   1ÀH‰œ$€   Dˆ¤$–   L‰¬$˜   H‰ÃH‰l$HL‰Œ$ˆ   A‰ôDˆœ$—   L‰t$PM‰ÅL‰|$@H‹D$HH‹T$@HŒ$°   H¼$¬   L4O|5 L)òL‰şè%ìÿÿH…ÀH‰Å„·  Hƒøÿ„ï  Hƒøş„&  €|$3 tMƒ|$4uFHƒøt@º   ¸   €    A¶<O¥€ù!wH‰ÆH¿+      HÓæH…ş…ª   HƒÂH9êuÑ‹¼$¬   è¥íÿÿH¼$°   …À¸    DDàHëèzíÿÿ…À„/ÿÿÿD‰æD¶œ$—   D¶¤$–   H‰ØH‹l$HL‹Œ$ˆ   H‹œ$€   L‹t$P‰òL‹|$@M‰èƒòHƒø†*üÿÿ"T$ é+üÿÿö„$   „ªøÿÿHƒÅé/÷ÿÿf„     L‹\$PL‹|$@é×ùÿÿA€x •Àé”ùÿÿ èêÿÿL‰ÇL‰L$PD‰\$HL‰D$@è¤êÿÿL‹L$PI‰ÇD‹\$HL‹D$@é#şÿÿÆD$ A¾   HÇD$`­C@ »   éöÿÿÆD$  A¾   HÇD$`«C@ »   éqöÿÿ€|$3 „ÆùÿÿéAùÿÿH‹t$(Æ0éZúÿÿD‰âH‰ØH‹l$HL‹Œ$ˆ   D¶œ$—   M‰èH‹œ$€   D¶¤$–   ƒòL‹t$PL‹|$@éİşÿÿH‰ØH‹l$HL‹Œ$ˆ   D¶¤$–   D¶œ$—   M‰èH‹œ$€   L‹t$Pº   L‹|$@éœşÿÿM‰úL‹|$@L‰öH‰ØM‰èH‹l$HL‹Œ$ˆ   D¶¤$–   I9÷D¶œ$—   H‹œ$€   L‹t$PL‹¬$˜   v#A€: uëD  A€|  tHƒÀHT I9×wêº   é%şÿÿÆD$  A¾   HÇD$`«C@ 1Ûé=õÿÿè(éÿÿÆD$ A¾   HÇD$`­C@ 1Ûéõÿÿffff.„     AWLcÿAVAUATUSH‰ËHƒìHH‰t$ H‰T$(è-èÿÿI‰Å‹ E…ÿL‹%†8  ‰D$4ˆk  D;=8  reAoA‰îL‰öHÁæIü b` …0  1ÿèÙ  H‹5R8  H‹=S8  I‰ÄH‰98  H‰0H‰x‹=D8  L‰ò1öH)úHÁçHÁâLçè¼èÿÿ‰-&8  H‹C0IÁç‹kMüD‹L{M‹$M‹t$H‰D$H‹C(ƒÍH‹L$(H‹T$ A‰éL‰ŞL‰<$L‰÷H‰D$L‰\$8èVóÿÿL‹\$8I9ÃwkHpIş b` I‰4$tL‰÷H‰t$8èçÿÿH‹t$8H‰÷H‰t$8è¼  I‰D$I‰ÆH‹C0D‹H‹L$(A‰éH‹T$ H‹t$8L‰÷H‰D$H‹C(L‰<$H‰D$èáòÿÿ‹D$4A‰E HƒÄHL‰ğ[]A\A]A^A_Ã€    L‰çè¨  I‰ÄH‰7  éßşÿÿè”æÿÿ@ ATUH‰ıSè”æÿÿD‹ H…í¿ c` H‰ÃHEı¾8   èØ  D‰#[]A\ÃH…ÿ¸ c` HEÇ‹ Ã¸ c` H…ÿHEÇ‰0ÃH…ÿ¸ c` ‰ñHEÇ@Àîƒá@¶öH4°‹~‰øÓè1ÂƒàƒâÓâ1ú‰VÃfff.„     H…ÿ¸ c` HDø‹G‰wÃffff.„     Hƒì¸ c` H…ÿHDøH…öÇ   tH…ÒtH‰w(H‰W0HƒÄÃè®åÿÿfffff.„     AW¸ c` I‰ÏAVI‰ÖAUI‰õATUSL‰ÃHƒì(M…ÀHDØH‰|$è€åÿÿD‹ H‰ÅH‹C0D‹KH‹|$L‰ùL‰òL‰îH‰D$H‹C(H‰D$HCH‰$D‹èFñÿÿD‰e HƒÄ([]A\A]A^A_Ã AW¸ c` AVI‰öAUI‰ıATI‰ÔUSH‰ËHƒìHH…ÉHDØ1íèåÿÿI‰Ç‹ M…ä@”ÅkLSL‰ñL‰ê1ö‰D$H‹C01ÿL‰T$0A‰éH‰D$H‹C(L‰$H‰D$D‹è¼ğÿÿHpH‰D$8H‰÷H‰t$(èF
+  H‰ÇH‰D$ H‹C0L‹T$0H‹t$(A‰éL‰ñL‰êH‰D$H‹C(L‰$H‰D$D‹èmğÿÿ‹D$M…äA‰t	L‹\$8M‰$H‹D$ HƒÄH[]A\A]A^A_Ã@ H‰Ñ1ÒéÿÿÿfD  AT‹¨4  L‹%‰4  UƒøSv$ƒèL‰ãHÁàIl H‹{HƒÃèÛãÿÿH9ëuîI‹|$Hÿ b` tèÃãÿÿHÇH4     HÇE4   b` Iü b` tL‰çèœãÿÿHÇ4   b` []Ç%4     A\Ãf¹ c` HÇÂÿÿÿÿé?ûÿÿffffff.„     ¹ c` é&ûÿÿfD  H‰ş¹ c` HÇÂÿÿÿÿ1ÿé
+ûÿÿf.„     H‰ò¹ c` H‰ş1ÿéîúÿÿfffff.„     UH‰ÕS‰ûHƒìHH‰çè½íÿÿH‰áH‰î‰ßHÇÂÿÿÿÿè¹úÿÿHƒÄH[]ÃfATI‰ÌUH‰ÕS‰ûHƒì@H‰çèˆíÿÿH‰áL‰âH‰î‰ßèˆúÿÿHƒÄ@[]A\Ãffffff.„     H‰ò‰ş1ÿé„ÿÿÿ@ H‰ÑH‰ò‰ş1ÿé¡ÿÿÿHƒìHH‹…4  A‰ĞAÀè‰ÑH‰òE¶ÀƒáH‰şH‰$H‹l4  1ÿH‰D$H‹f4  H‰D$H‹b4  H‰D$H‹^4  H‰D$ H‹Z4  F‹L„H‰D$(H‹Q4  H‰D$0D‰ÈÓèƒğƒàÓàH‰áD1ÈB‰D„è¿ùÿÿHƒÄHÃf.„     @¾ÖHÇÆÿÿÿÿéPÿÿÿº:   HÇÆÿÿÿÿé?ÿÿÿffffff.„     º:   é&ÿÿÿfD  ATM‰ÄUH‰ÍS‰ûHƒì@H‹™3  H‰çH‰$H‹“3  H‰D$H‹3  H‰D$H‹‹3  H‰D$H‹‡3  H‰D$ H‹ƒ3  H‰D$(H‹3  H‰D$0èeûÿÿH‰áL‰âH‰î‰ßèõøÿÿHƒÄ@[]A\Ãfff.„     IÇÀÿÿÿÿédÿÿÿ@ H‰ÑIÇÀÿÿÿÿH‰òH‰ş1ÿéIÿÿÿf„     I‰ÈH‰ÑH‰òH‰ş1ÿé-ÿÿÿffff.„     ¹àa` é†øÿÿfD  H‰ò¹àa` H‰ş1ÿénøÿÿfffff.„     ¹àa` HÇÂÿÿÿÿéOøÿÿffffff.„     H‰ş¹àa` HÇÂÿÿÿÿ1ÿé*øÿÿf.„     AWAVAUATM‰ÌUH‰ıSL‰ÃHƒìXH…ö„à  I‰ÉI‰ĞH‰ñº¨H@ ¾   1Àèæâÿÿ1ÿº   ¾»H@ è¥àÿÿA¸İ  H‰Áº€K@ ¾   H‰ï1Àè¸âÿÿ1ÿº   ¾I@ èwàÿÿH‰îH‰ÇèLáÿÿIƒü	‡’  Bÿ$å0K@ f.„     L‹K8L‹Cº   H‹C¾ˆJ@ 1ÿL‹k0L‹c(L‹{ L‹sL‰L$@L‰D$8H‹H‰D$0èàÿÿL‹L$@L‹D$8H‰ÂL‰l$L‰d$H‰ÙL‰|$L‰4$¾   L‰L$ L‹L$0H‰ï1ÀèâÿÿHƒÄX[]A\A]A^A_ÃfD  L‹S@L‹K8º   H‹CL‹C¾¸J@ L‹k0L‹c(L‹{ L‹sH‹L‰T$HL‰L$@H‰D$0L‰D$81ÿèxßÿÿL‹L$@L‹T$HH‰ÙL‹D$8L‰l$H‰ÂL‰d$L‰|$H‰ïL‰L$ L‹L$0¾   L‰4$L‰T$(1ÀèbáÿÿHƒÄX[]A\A]A^A_Ã è‹Şÿÿ H‹º   ¾¿H@ 1ÿèßÿÿHƒÄXH‰ÙH‰ï[]A\A]A^A_H‰Â¾   1ÀéáÿÿL‹cH‹º   ¾ÏH@ 1ÿèÈŞÿÿHƒÄXH‰ÙH‰ï[]M‰àH‰Â¾   A\A]A^A_1ÀéÒàÿÿfL‹kL‹cº   H‹¾æH@ 1ÿè„ŞÿÿHƒÄXH‰ïM‰àH‰ÙM‰éH‰Â[]A\A]A^A_¾   1Àé‹àÿÿ L‹sL‹k1ÿL‹cH‹º   ¾èI@ è8ŞÿÿL‰4$H‰ÂM‰éM‰àH‰Ù¾   H‰ï1ÀèIàÿÿé?şÿÿ@ L‹{ L‹s1ÿL‹kL‹cº   H‹¾J@ èìİÿÿL‰|$H‰ÂL‰4$M‰éM‰àH‰Ù¾   H‰ï1Àèøßÿÿéîıÿÿ L‹CL‹c(1ÿL‹{ L‹sº   L‹k¾0J@ H‹L‰D$0è“İÿÿL‹D$0H‰ÂL‰d$L‰|$L‰4$M‰éH‰Ù¾   H‰ï1Àè˜ßÿÿéıÿÿ L‹KL‹C1ÿL‹k0L‹c(º   L‹{ L‹s¾XJ@ H‹L‰L$8L‰D$0è*İÿÿL‹L$8L‹D$0H‰ÂL‰l$L‰d$H‰ÙL‰|$L‰4$¾   H‰ï1Àè(ßÿÿéıÿÿ I‰È¾   H‰Ñ1Àº´H@ è	ßÿÿéüÿÿ@ L‹S@L‹K8º   H‹CL‹C¾ğJ@ L‹k0L‹c(L‹{ L‹sL‰T$HL‰L$@H‰D$0L‰D$8H‹éıÿÿf.„     E1ÉIƒ8 t€    IƒÁKƒ<È uõépûÿÿHƒìXE1Éë*€    A‰ÂMPƒÀA‰ I‹H…ÀJ‰Ìt/IƒÁIƒù
+t%A‹ ƒø0rÕM‹PIBI‰@I‹H…ÀJ‰ÌuÖD  I‰àèûÿÿHƒÄXÃff.„     HìØ   „ÀL‰D$@L‰L$Ht7)D$P)L$`)T$p)œ$€   )¤$   )¬$    )´$°   )¼$À   H„$à   LD$H‰D$HD$ ÇD$    ÇD$0   H‰D$èÿÿÿHÄØ   Ãff.„     Sº   ¾I@ 1ÿèNÛÿÿºPB@ H‰Æ¿   1ÀèúÜÿÿº   ¾fB@ 1ÿè)Ûÿÿ¹HA@ H‰ÆºzB@ ¿   1ÀèĞÜÿÿH‹)+  ¾pA@ 1ÿº   èøÚÿÿH‰ŞH‰Ç[éÌÛÿÿf.„     fSH‰ûèÜÿÿH…Àt[ÃH…Ûtùèö  fD  1ÒHÇÀÿÿÿÿH÷öH9ør	H¯şéÆÿÿÿPèĞ  é»ÿÿÿff.„     H…öSH‰ótH‰ŞèÜÿÿH…Àt[Ã„     H…ÿtäèÆÙÿÿ1À[ÃH…Ûtãèˆ  „     H‰ÑHÇÀÿÿÿÿ1ÒH÷ñH9ğr	H¯ñé£ÿÿÿPè]  ffff.„     H…ÿI‰ĞH‹t51ÒH¸ªªªªªªªªI÷ğH9Ás=HAHÑèHÁH‰I¯ÈH‰ÎéXÿÿÿ„     H…Éuä1Ò¸€   1ÉI÷ğH…À”ÁHÁëÍPèî   fffff.„     H…ÿH‹t(Hº©ªªªªªªªH9Ğw0HPHÑêHĞH‰H‰Æéôşÿÿ@ H…Àº€   HDÂH‰H‰ÆéÙşÿÿPè“    SH‰ûèwşÿÿH‰Ú1öH‰Ç[éÙÙÿÿf„     Hƒìè'ÚÿÿH…ÀtHƒÄÃèX   „     UH‰ıH‰÷SH‰óHƒìè,şÿÿHƒÄH‰ÚH‰î[]H‰ÇéÚÿÿ„     SH‰ûèÙÿÿH‰ßHp[éºÿÿÿf.„     Hƒìº   ¾¯K@ 1ÿè»Øÿÿ‹=](  H‰ÁºÛB@ 1ö1ÀètÚÿÿèØÿÿf.„     D  ATUH‰ıSèDØÿÿ‹] H‰ïI‰Äè–  ƒã …À•Â…Ûu„Òt
+M…ä»ÿÿÿÿt,‰Ø[]A\ÃD  „Ò»ÿÿÿÿuëèÂ×ÿÿÇ     ‰Ø[]A\ÃD  è«×ÿÿ1Ûƒ8	•Ã÷Û‰Ø[]A\Ãf.„     AW¿   AVAUATUSHì¨   dH‹%(   H‰„$˜   1ÀèBÙÿÿL‹5ƒ)  H…ÀH‰Ã¸I@ HDØM…öu!é†   fL‰÷èØ×ÿÿIlH‰ïèË×ÿÿLtA¶.@„ít)L‰öH‰ßè’Øÿÿ…Àt@€ı*uÈA€~ uÁL‰÷è™×ÿÿI\€; ¸ÉK@ HDØH‹Œ$˜   dH3%(   H‰Ø…;  HÄ¨   []A\A]A^A_Ã¿ÏK@ è‚ÖÿÿH…ÀI‰Çt	€8 …c  ¸   A¼   A¿ÀK@ A€</A½   ÇD$   „)  MåI}è+ØÿÿH…ÀH‰Å„Á  L‰âL‰şH‰Çèñ×ÿÿ‹T$…ÒtBÆD% /IíH¸charset.¾   I‰E ¸s   AÇEaliafA‰EH‰ï1ÀèqØÿÿ…ÀA‰Äˆ  ¾ÕB@ ‰ÇèØÿÿH…ÀI‰Ç„~  Ld$ HÇD$    I‹GI;GƒC  HPI‰W¶8ƒÿ tâG÷ƒøvÚƒÿ#„–  L‰şè™×ÿÿHL$`1ÀL‰â¾ßK@ L‰ÿè²Öÿÿƒø•  L‰â‹
+HƒÂÿşşş÷Ñ!È%€€€€té‰ÁLT$`Áé©€€  DÁHJHDÑ ÀHƒÚL)âA‹
+IƒÂÿşşş÷Ñ!È%€€€€tè‰ÁÁé©€€  DÁIJLDÑ ÀHD$`IƒÚI)ÂHƒ|$ I…-  HHHxH‰T$L‰T$H‰L$è¥ÖÿÿL‹T$H‹T$I‰ÅM…í„A  L‹t$HÇÇşÿÿÿL‰æH)×M)ÖL÷LïèßÔÿÿK|5ÿHt$`M‰îèÍÔÿÿI‹GI;G‚½şÿÿL‰ÿèGÔÿÿƒøÿ‰Ç„ˆ   é°şÿÿ€    D‰çè˜ÕÿÿA¾I@ H‰ïè:ÔÿÿL‰5{&  é(ıÿÿE1íÇD$    éÇıÿÿH‰ÇèÖÔÿÿH…ÀI‰ÄtàH@ÿé•ıÿÿD  ƒøÿtI‹GI;Gƒš   HPI‰W¶ ƒø
+uİƒøÿ…şÿÿL‰ÿèŒ   H‹D$H…À„vÿÿÿAÆ érÿÿÿHD$L‰÷L‰T$H‰T$HHHpH‰L$èÀÕÿÿL‹T$I‰ÅH‹T$éÆşÿÿA¾I@ é9ÿÿÿè>ÔÿÿL‰÷A¾I@ è`ÓÿÿL‰ÿè   éÿÿÿL‰ÿè+ÓÿÿédÿÿÿfD  ATUSH‰ûèÕÿÿ…ÀH‰ßx\èHÕÿÿ…Àu4H‰ßè\   …ÀtDè3ÓÿÿD‹ H‰ßH‰Åè…ÓÿÿE…ät	D‰e ¸ÿÿÿÿ[]A\ÃfH‰ßè¸Ôÿÿ1öº   ‰ÇèúÓÿÿHƒøÿu°H‰ß[]A\éHÓÿÿ„     H…ÿSH‰ût	èÒÔÿÿ…ÀuH‰ß[é•ÔÿÿD  ÷   têH‰ßº   1öè	   H‰ß[épÔÿÿSH‰ûHƒìH‹GH9GtHƒÄH‰ß[éñÔÿÿH‹G H9G(uèHƒH uá‰T$H‰4$èÔÿÿ‹T$H‹4$‰ÇèSÓÿÿHƒøÿtƒ#ïH‰ƒ   1ÀHƒÄ[Ãf.„     AWA‰ÿAVI‰öAUI‰ÕATL%x  UH-x  SL)å1ÛHÁıHƒìèÑÿÿH…ít„     L‰êL‰öD‰ÿAÿÜHƒÃH9ëuêHƒÄ[]A\A]A^A_Ãff.„     óÃf.„     @ HÁ!  H…Àt
+H‹1öéÔÿÿ1Òëõ  HƒìHƒÄÃ                                 Try '%s --help' for more information.
+  Usage: %s [STRING]...
+  or:  %s OPTION
+ Repeatedly output a line with all specified STRING(s), or 'y'.
+
+              --help     display this help and exit
+          --version  output version information and exit
+   http://www.gnu.org/software/coreutils/  General help using GNU software: <http://www.gnu.org/gethelp/>
+ Report %s translation bugs to <http://translationproject.org/team/>
+    For complete documentation, run: info coreutils '%s invocation'
+ 
+Report %s bugs to %s
+ bug-coreutils@gnu.org %s home page: <%s>
+ GNU coreutils en_ y /usr/share/locale yes David MacKenzie + standard output 8.21 write error %s: %s help version                      ŞB@                     h       ãB@                     v                                       A NULL argv[0] was passed through an exec system call.
+ /.libs/ lt- â€™ ¡¯ ' " ¡e â€˜ ` literal shell shell-always c c-maybe escape clocale                    P@     €%@      $@     `$@     À$@      $@     ğ$@     ğ$@     ğ$@     0"@     (#@     (#@     (#@     (#@     (#@     (#@      "@     è!@      "@     "@      "@     ğ!@     À!@     (#@     (#@     (#@     (#@     (#@     (#@     (#@     (#@     (#@     (#@     (#@     (#@     (#@     (#@     (#@     (#@     (#@     (#@     2!@     2!@     2!@     )!@     2!@      @     2!@     Ğ"@     2!@     2!@     2!@      @      @      @      @      @      @      @      @      @      @      @      @      @      @      @      @     2!@     2!@     2!@     2!@     P@     (#@      @      @      @      @      @      @      @      @      @      @      @      @      @      @      @      @      @      @      @      @      @      @      @      @      @      @     2!@     °"@      @     2!@      @     2!@      @      @      @      @      @      @      @      @      @      @      @      @      @      @      @      @      @      @      @      @      @      @      @      @      @      @     !@     2!@     !@     )!@                              ¹C@     ÁC@     ÇC@     ÔC@     ÖC@     ŞC@     ™B@     åC@             %s (%s) %s
+ %s %s
+ (C) Written by %s.
+ Written by %s and %s.
+ Written by %s, %s, and %s.
+ 
+Report bugs to: %s
+  
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+      Written by %s, %s, %s,
+and %s.
+ Written by %s, %s, %s,
+%s, and %s.
+     Written by %s, %s, %s,
+%s, %s, and %s.
+ Written by %s, %s, %s,
+%s, %s, %s, and %s.
+     Written by %s, %s, %s,
+%s, %s, %s, %s,
+and %s.
+ Written by %s, %s, %s,
+%s, %s, %s, %s,
+%s, and %s.
+     Written by %s, %s, %s,
+%s, %s, %s, %s,
+%s, %s, and others.
+     3@     3@     P3@     3@     Ø3@      4@     p4@     Ğ4@     à1@     p2@     Copyright %s %d Free Software Foundation, Inc. memory exhausted /usr/lib ASCII CHARSETALIASDIR %50s %50s    ;8  F   tÅÿÿ„  ´ÈÿÿÌ  \ÊÿÿT  TËÿÿ¬  DÍÿÿ  TÍÿÿ  dÍÿÿ4  Îÿÿd  „Îÿÿ|  ´Îÿÿœ  ÄÏÿÿÜ  dĞÿÿü  ÔĞÿÿ  ÄÑÿÿ\  tİÿÿ¬  $ßÿÿü  Tßÿÿ,  dßÿÿD  tßÿÿ\  ´ßÿÿt  ÔßÿÿŒ  àÿÿ¬  ”àÿÿô  „áÿÿD  ”áÿÿ\  $âÿÿŒ  Dâÿÿ¤  Tâÿÿ¼  tâÿÿÔ  ”âÿÿì  Äâÿÿ  ãÿÿD  ãÿÿ\  $ãÿÿt  ÄãÿÿŒ  Ôãÿÿ¤  ôãÿÿ¼  äÿÿÔ  ”äÿÿ  ¤äÿÿ  Ääÿÿ4  ääÿÿL  ôäÿÿd  åÿÿ|  4åÿÿ”  Tåÿÿ¬  Äéÿÿ\	  äéÿÿt	  TêÿÿŒ	  äêÿÿ¬	  dëÿÿÌ	  „ëÿÿì	  ¤ëÿÿ
+  ´ëÿÿ
+  ôëÿÿD
+  $ìÿÿ\
+  ”ìÿÿt
+  äìÿÿŒ
+  íÿÿ¬
+  $íÿÿÌ
+  Tíÿÿô
+  tíÿÿ  ´íÿÿ,  4îÿÿt  dòÿÿÄ  äòÿÿü  $óÿÿ  ”óÿÿL  ôÿÿ”  ôÿÿ¬         zR x       Èÿÿ*                  zR x  $      èÂÿÿ@   FJw€ ?;*3$"       D    Èÿÿä   A†FƒF   4   d   àÅÿÿ¨   BBB B(ŒA0†C8ƒG`         œ   8Êÿÿ              ´   0Êÿÿ           ,   Ì   (Êÿÿ¨    A†AƒD w
+AAA         ü   ¨Êÿÿi                 Ëÿÿ+    AƒZ
+EJ <   4  Ëÿÿ   BEŒD †D(ƒGj
+(A ABBJ       t  àËÿÿ“    Dƒn
+A      ”  `Ìÿÿf    DP\
+A     <   ´  °Ìÿÿğ    BGŒG †F(ƒD0Q
+(D ABBD      L   ô  `Íÿÿ£   BEE E(ŒA0†A8ƒJ€ç
+8A0A(B BBBB   L   D  ÀØÿÿ¬   BEB B(ŒA0†A8ƒG€g
+8D0A(B BBBH   ,   ”   Úÿÿ0    BŒA†D ƒeAB          Ä   Úÿÿ              Ü  Úÿÿ              ô  Úÿÿ4                8Úÿÿ              $  @Úÿÿ2    Dh
+A      D   D  `Úÿÿ}    BJE E(ŒA0†A8ƒG`S8A0A(B BBBL   Œ  ˜Úÿÿì    BGE E(ŒD0†A8ƒG€Â8A0A(B BBB          Ü  8Ûÿÿ
+           ,   ô  0Ûÿÿ    BŒN†D ƒlAL         $  Ûÿÿ              <  ˜Ûÿÿ
+              T  Ûÿÿ              l  ˜Ûÿÿ           $   „   Ûÿÿ.    A†DƒF``AA ,   ¬  ¨Ûÿÿ1    BŒD†D ƒF`\ AAB    Ü  ¸Ûÿÿ              ô  °Ûÿÿ                ¨Ûÿÿ–    DP‘   $  0Üÿÿ              <  (Üÿÿ              T  0Üÿÿ
+           ,   l  (Üÿÿ„    BŒD†D ƒF`o AAB   œ  ˆÜÿÿ              ´  €Üÿÿ              Ì  ˆÜÿÿ              ä  Üÿÿ
+              ü  ˆÜÿÿ                Üÿÿ              ,  ˜Üÿÿ           ¬   D   Üÿÿf   BBB B(ŒD0†D8ƒG
+8A0A(B BBBG’
+8A0A(B BBBD`
+8G0A(B BBBP\
+8G0A(M BBBI`
+8P0A(B BBBO     ô  `àÿÿ                 hàÿÿe    D``   $  Ààÿÿ…    Gà}          D  0áÿÿt    Aƒn         d  áÿÿ    AƒN
+A       „  áÿÿ     [       œ  ˜áÿÿ           $   ´  áÿÿ8    DƒS
+IM
+A         Ü  ¨áÿÿ#    ^       ô  Àáÿÿb    ]        âÿÿM    H      $  Pâÿÿ    AƒQ          D  Pâÿÿ    DN
+A      $   d  Pâÿÿ(    A†GƒG IGA    Œ  Xâÿÿ    AƒP          ¬  Xâÿÿ1    D    D   Ä  €âÿÿv    BŒA†D ƒp
+ABFW
+ABFRAB       L   	  ¸âÿÿ*   BGB B(ŒA0†A8ƒGà³
+8A0A(B BBBA    4   \	  ˜æÿÿx    BŒA†A ƒF
+ABC`AB     ”	  àæÿÿ@    DƒR
+J[ ,   ´	   çÿÿe    AƒG N
+DFCA       D   ä	  @çÿÿe    BEE E(ŒH0†H8ƒM@l8A0A(B BBB    ,
+  hçÿÿ              D
+  `çÿÿ                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @     ğ@                                  @@            @@            ^`                          ^`                   õşÿo    ˜@            €@            à@     
+       w                                           ``            È                           x@            Ğ@            ¨       	              şÿÿo    p@     ÿÿÿo           ğÿÿo    ø
+@                                                                                                             (^`                     v@     †@     –@     ¦@     ¶@     Æ@     Ö@     æ@     ö@     @     @     &@     6@     F@     V@     f@     v@     †@     –@     ¦@     ¶@     Æ@     Ö@     æ@     ö@     @     @     &@     6@     F@     V@     f@     v@     †@     –@     ¦@     ¶@     Æ@     Ö@     æ@     ö@     @     @     &@     6@     F@     V@     f@     v@     †@     –@                                     ÆB@                                                                    b`             b`        yes ¨b¿ .shstrtab .interp .note.ABI-tag .note.gnu.build-id .gnu.hash .dynsym .dynstr .gnu.version .gnu.version_r .rela.dyn .rela.plt .init .text .fini .rodata .eh_frame_hdr .eh_frame .init_array .fini_array .jcr .dynamic .got .got.plt .data .bss .gnu_debuglink                                                                                    8@     8                                                 T@     T                                     !             t@     t      $                              4   öÿÿo       ˜@     ˜      D                             >             à@     à                                 F             €@     €      w                             N   ÿÿÿo       ø
+@     ø
+      x                            [   şÿÿo       p@     p      `                            j             Ğ@     Ğ      ¨                            t             x@     x      È                          ~             @@     @                                    y             `@     `      @                            „              @            z+                             Š             @@     @      	                                           @@@     @@      ©                              ˜             ìK@     ìK      <                             ¦             (N@     (N      Œ
+                             °             ^`     ^                                    ¼             ^`     ^                                    È              ^`      ^                                    Í             (^`     (^      Ğ                           Ö             ø_`     ø_                                   Û              ``      `      °                            ä             Àa`     Àa      t                               ê             @b`     4b                                     ï                      4b                                                          <b      ş                              
